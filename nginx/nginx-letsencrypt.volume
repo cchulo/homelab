@@ -1,4 +1,5 @@
 [Volume]
+VolumeName=nginx-letsencrypt
 
 [Install]
 WantedBy=default.target
