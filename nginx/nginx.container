@@ -7,9 +7,9 @@ After=nginx-data.volume nginx-letsencrypt.volume
 Environment="TZ=America/Los_Angeles"
 Image=nginx.image
 ContainerName=nginx
-PublishPort=80:80
-PublishPort=443:443
-PublishPort=81:81
+PublishPort=8080:80
+PublishPort=8443:443
+PublishPort=8081:81
 Volume=nginx-data:/data
 Volume=nginx-letsencrypt:/etc/letsencrypt
 
