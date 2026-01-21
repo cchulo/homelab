@@ -1,5 +1,3 @@
 [Image]
 Image=jc21/nginx-proxy-manager:latest
-
-[Install]
-WantedBy=default.target
+Policy=always

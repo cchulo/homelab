@@ -1,11 +1,11 @@
 [Unit]
 Description=nginx container
-Requires=nginx-data.volume nginx-letsencrypt.volume nginx.image
-After=nginx-data.volume nginx-letsencrypt.volume nginx.image
+Requires=nginx-data.volume nginx-letsencrypt.volume
+After=nginx-data.volume nginx-letsencrypt.volume
 
 [Container]
-Environment=TZ=America/Los_Angeles
-Image=jc21/nginx-proxy-manager:latest
+Environment="TZ=America/Los_Angeles"
+Image=nginx.image
 ContainerName=nginx
 PublishPort=80:80
 PublishPort=443:443
