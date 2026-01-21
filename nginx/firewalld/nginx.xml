@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>nginx</short>
+  <description>Nginx custom ports (8080, 8081, 8443)</description>
+
+  <port protocol="tcp" port="8080"/>
+  <port protocol="tcp" port="8081"/>
+  <port protocol="tcp" port="8443"/>
+</service>
