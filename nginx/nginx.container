@@ -1,0 +1,20 @@
+[Unit]
+Description=nginx container
+Requires=nginx-data.volume nginx-letsencrypt.volume nginx.image
+After=nginx-data.volume nginx-letsencrypt.volume nginx.image
+
+[Container]
+Environment=TZ=America/Los_Angeles
+Image=jc21/nginx-proxy-manager:latest
+ContainerName=nginx
+PublishPort=80:80
+PublishPort=443:443
+PublishPort=81:81
+Volume=nginx-data:/data
+Volume=nginx-letsencrypt:/etc/letsencrypt
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
