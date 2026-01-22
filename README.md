@@ -6,6 +6,7 @@ Ansible playbook for setting up my various servers and workstations at home
 - Install systemd folder contents to ~/.config/containers/systemd
 - Install firewalld services and zones contents into /etc/firewalld
 - Enable the zone and reboot
+- Set loginctl linger to enabled
 
 ## TODO
 
