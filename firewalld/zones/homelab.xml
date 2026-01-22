@@ -6,6 +6,7 @@
   <service name="dhcpv6-client"/>
   <service name="cockpit"/>
   <service name="nginx"/>
+  <service name="forgejo"/>
   <forward-port port="443" protocol="tcp" to-port="8443"/>
   <forward/>
 </zone>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>forgejo</short>
+  <description>Forgejo custom ports (3000, 3022)</description>
+
+  <port protocol="tcp" port="3000"/>
+  <port protocol="tcp" port="3022"/>
+</service>
