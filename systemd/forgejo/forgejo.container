@@ -1,0 +1,19 @@
+[Unit]
+Description=Forgejo git server container
+Requires=forgejo-data.volume
+After=forgejo-data.volume
+
+[Container]
+Environment="TZ=America/Los_Angeles"
+Image=forgejo.image
+ContainerName=forgejo
+PublishPort=3000:3000
+PublishPort=222:222
+Volume=forgejo-data:/data
+Volume=/etc/localtime:/etc/localtime:ro
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
