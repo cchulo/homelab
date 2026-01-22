@@ -12,6 +12,7 @@ PublishPort=8443:443
 PublishPort=8081:81
 Volume=nginx-data:/data
 Volume=nginx-letsencrypt:/etc/letsencrypt
+Network=homelab
 
 [Service]
 Restart=always
