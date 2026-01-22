@@ -1,7 +1,7 @@
 [Unit]
 Description=nginx container
-Requires=nginx-data.volume nginx-letsencrypt.volume
-After=nginx-data.volume nginx-letsencrypt.volume
+Requires=nginx-data.volume nginx-letsencrypt.volume homelab.network
+After=nginx-data.volume nginx-letsencrypt.volume homelab.network
 
 [Container]
 Environment="TZ=America/Los_Angeles"

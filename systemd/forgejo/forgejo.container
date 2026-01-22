@@ -1,7 +1,7 @@
 [Unit]
 Description=Forgejo git server container
-Requires=forgejo-data.volume
-After=forgejo-data.volume
+Requires=forgejo-data.volume homelab.network
+After=forgejo-data.volume homelab.network
 
 [Container]
 Environment="TZ=America/Los_Angeles"
