@@ -8,7 +8,7 @@ Environment="TZ=America/Los_Angeles"
 Image=forgejo.image
 ContainerName=forgejo
 PublishPort=3000:3000
-PublishPort=222:222
+PublishPort=3022:3022
 Volume=forgejo-data:/data
 Volume=/etc/localtime:/etc/localtime:ro
 
