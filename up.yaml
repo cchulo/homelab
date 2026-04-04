@@ -1,4 +1,5 @@
 - ansible.builtin.import_playbook: network/up.yaml
+- ansible.builtin.import_playbook: cockpit/up.yaml
 - ansible.builtin.import_playbook: nginx/up.yaml
 - ansible.builtin.import_playbook: forgejo/up.yaml
 - ansible.builtin.import_playbook: netbootxyz/up.yaml
