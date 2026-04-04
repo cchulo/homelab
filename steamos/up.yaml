@@ -4,12 +4,12 @@
   tasks:
     - name: Create wireplumber config directory
       ansible.builtin.file:
-        path: "{{ lookup('env', 'HOME') }}/.config/wireplumber/wireplumber.conf.d"
+        path: "{{ ansible_env.HOME }}/.config/wireplumber/wireplumber.conf.d"
         state: directory
         mode: "0755"
 
     - name: Copy wireplumber config
       ansible.builtin.copy:
         src: "{{ playbook_dir }}/wireplumber/disable-suspension.conf"
-        dest: "{{ lookup('env', 'HOME') }}/.config/wireplumber/wireplumber.conf.d/disable-suspension.conf"
+        dest: "{{ ansible_env.HOME }}/.config/wireplumber/wireplumber.conf.d/disable-suspension.conf"
         mode: "0644"

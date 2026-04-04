@@ -73,6 +73,8 @@ Use `/new-steamos-config` or follow these rules:
 
 ## General rules
 
+- Always use `ansible_env.HOME` and `ansible_user_id` for remote paths/ownership — never `lookup('env', 'HOME')` or `lookup('env', 'USER')`, which resolve on the controller, not the remote host
+
 - Never commit `inventory.ini` — it is gitignored
 - Port forwards (80→8080, 443→8443, 69→8069) live in `network/up.yaml`
 - The `homelab.network` quadlet lives in `network/systemd/`

@@ -1,15 +1,15 @@
 - name: Create the Quadlet directory
   ansible.builtin.file:
-    path: "{{ lookup('env', 'HOME') }}/.config/containers/systemd"
+    path: "{{ ansible_env.HOME }}/.config/containers/systemd"
     state: directory
     mode: "0755"
 
 - name: Copy the Quadlet files
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/systemd/"
-    dest: "{{ lookup('env', 'HOME') }}/.config/containers/systemd"
-    owner: "{{ lookup('env', 'USER') }}"
-    group: "{{ lookup('env', 'USER') }}"
+    dest: "{{ ansible_env.HOME }}/.config/containers/systemd"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
     mode: "0644"
   register: result
 

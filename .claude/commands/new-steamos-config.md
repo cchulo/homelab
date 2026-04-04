@@ -13,14 +13,14 @@ Then:
 ```yaml
 - name: Create <config-type> config directory
   ansible.builtin.file:
-    path: "{{ lookup('env', 'HOME') }}/<destination-dir>"
+    path: "{{ ansible_env.HOME }}/<destination-dir>"
     state: directory
     mode: "0755"
 
 - name: Copy <config-type> config
   ansible.builtin.copy:
     src: "{{ playbook_dir }}/<config-type>/<filename>"
-    dest: "{{ lookup('env', 'HOME') }}/<destination-dir>/<filename>"
+    dest: "{{ ansible_env.HOME }}/<destination-dir>/<filename>"
     mode: "0644"
 ```
 
@@ -28,7 +28,7 @@ Then:
 ```yaml
 - name: Remove <config-type> config
   ansible.builtin.file:
-    path: "{{ lookup('env', 'HOME') }}/<destination-dir>/<filename>"
+    path: "{{ ansible_env.HOME }}/<destination-dir>/<filename>"
     state: absent
 ```
 
