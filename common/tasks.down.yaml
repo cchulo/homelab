@@ -1,0 +1,24 @@
+- name: Stop the systemd services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    scope: user
+    state: stopped
+  with_items: "{{ systemd_services | default([]) }}"
+  ignore_errors: true
+
+- name: Find Quadlet files
+  ansible.builtin.find:
+    paths: "{{ playbook_dir }}/systemd"
+    file_type: file
+  register: quadlet_files
+
+- name: Remove Quadlet files
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/containers/systemd/{{ item.path | basename }}"
+    state: absent
+  with_items: "{{ quadlet_files.files }}"
+
+- name: Reload systemd user daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+    scope: user

@@ -1,0 +1,5 @@
+- ansible.builtin.import_playbook: netbootxyz/down.yaml
+- ansible.builtin.import_playbook: forgejo/down.yaml
+- ansible.builtin.import_playbook: nginx/down.yaml
+- ansible.builtin.import_playbook: network/down.yaml
+- ansible.builtin.import_playbook: steamos/down.yaml
