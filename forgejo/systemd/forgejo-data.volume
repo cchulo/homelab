@@ -1,5 +1,6 @@
 [Volume]
 VolumeName=forgejo-data
+Label=homelab=forgejo
 
 [Install]
 WantedBy=default.target

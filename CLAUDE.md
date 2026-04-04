@@ -37,6 +37,10 @@ Use `/new-server-service` or follow these rules:
 4. Add `- ansible.builtin.import_playbook: <service>/up.yaml` to root `up.yaml`
 5. Add `- ansible.builtin.import_playbook: <service>/down.yaml` to root `down.yaml` (in reverse order)
 
+### Quadlet volume conventions
+
+- Always add `Label=homelab=<service>` to every `.volume` file
+
 ### Quadlet container conventions
 
 - Always include `After=network-online.target` in `[Unit]`

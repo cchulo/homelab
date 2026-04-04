@@ -42,6 +42,7 @@ WantedBy=default.target
 ```
 [Volume]
 VolumeName=<volume-name>
+Label=homelab=<service>
 
 [Install]
 WantedBy=default.target

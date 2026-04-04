@@ -1,5 +1,6 @@
 [Volume]
 VolumeName=netbootxyz-config
+Label=homelab=netbootxyz
 
 [Install]
 WantedBy=default.target

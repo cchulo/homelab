@@ -1,5 +1,6 @@
 [Volume]
 VolumeName=nginx-data
+Label=homelab=nginx
 
 [Install]
 WantedBy=default.target
