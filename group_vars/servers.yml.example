@@ -1,0 +1,7 @@
+# Copy this file to group_vars/servers.yml and fill in your values.
+# servers.yml is gitignored — never commit it.
+
+# NFS backup mount
+nfs_host: "nas.local"               # NAS hostname or IP
+nfs_share: "/volume1/backup"        # Export path on the NAS
+nfs_options: "defaults,_netdev,nofail"  # Optional: override mount options

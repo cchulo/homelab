@@ -1,0 +1,27 @@
+- name: Bring down NFS backup mount
+  hosts: servers
+  become: true
+
+  tasks:
+    - name: Stop and disable NFS mount
+      ansible.builtin.systemd:
+        name: mnt-backup.mount
+        enabled: false
+        state: stopped
+      ignore_errors: true
+
+    - name: Remove systemd mount unit
+      ansible.builtin.file:
+        path: /etc/systemd/system/mnt-backup.mount
+        state: absent
+      notify: Reload systemd
+
+    - name: Remove mount point
+      ansible.builtin.file:
+        path: /mnt/backup
+        state: absent
+
+  handlers:
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
