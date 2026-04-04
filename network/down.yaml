@@ -8,9 +8,9 @@
     - name: Remove port forwards
       ansible.posix.firewalld:
         port_forward:
-          port: "{{ item.port }}"
-          proto: "{{ item.proto }}"
-          toport: "{{ item.toport }}"
+          - port: "{{ item.port }}"
+            proto: "{{ item.proto }}"
+            toport: "{{ item.toport }}"
         permanent: true
         immediate: true
         state: disabled
