@@ -1,0 +1,18 @@
+- name: Bring up netbootxyz
+  hosts: servers
+
+  tasks:
+    - name: Bring up service
+      ansible.builtin.import_tasks: ../common/tasks.up.yaml
+      vars:
+        fw_services:
+          to_create:
+            - name: netbootxyz
+              ports:
+                - 3001/tcp
+                - 8069/udp
+                - 8082/tcp
+          to_enable:
+            - netbootxyz
+        systemd_services:
+          - netbootxyz.service

@@ -1,0 +1,5 @@
+[Volume]
+VolumeName=netbootxyz-config
+
+[Install]
+WantedBy=default.target

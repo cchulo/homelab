@@ -1,0 +1,5 @@
+[Volume]
+VolumeName=netbootxyz-assets
+
+[Install]
+WantedBy=default.target
