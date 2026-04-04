@@ -1,0 +1,13 @@
+[Unit]
+Description=NAS backup NFS mount
+After=network-online.target
+Wants=network-online.target
+
+[Mount]
+What={{ nfs_host }}:{{ nfs_share }}
+Where=/mnt/backup
+Type=nfs
+Options={{ nfs_options | default('defaults,_netdev,nofail') }}
+
+[Install]
+WantedBy=multi-user.target

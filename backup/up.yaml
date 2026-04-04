@@ -1,0 +1,31 @@
+- name: Bring up NFS backup mount
+  hosts: servers
+  become: true
+
+  tasks:
+    - name: Create mount point
+      ansible.builtin.file:
+        path: /mnt/backup
+        state: directory
+        mode: "0755"
+
+    - name: Deploy systemd mount unit
+      ansible.builtin.template:
+        src: mnt-backup.mount.j2
+        dest: /etc/systemd/system/mnt-backup.mount
+        mode: "0644"
+      notify: Reload systemd and remount
+
+    - name: Enable and start NFS mount
+      ansible.builtin.systemd:
+        name: mnt-backup.mount
+        enabled: true
+        state: started
+        daemon_reload: true
+
+  handlers:
+    - name: Reload systemd and remount
+      ansible.builtin.systemd:
+        name: mnt-backup.mount
+        state: restarted
+        daemon_reload: true
