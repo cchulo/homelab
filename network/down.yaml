@@ -7,18 +7,21 @@
 
     - name: Remove port forwards
       ansible.posix.firewalld:
-        forward_port: "{{ item }}"
+        port_forward:
+          port: "{{ item.port }}"
+          proto: "{{ item.proto }}"
+          toport: "{{ item.toport }}"
         permanent: true
         immediate: true
         state: disabled
       loop:
-        - "port=80:proto=tcp:toport=8080:toaddr="
-        - "port=443:proto=tcp:toport=8443:toaddr="
-        - "port=69:proto=udp:toport=8069:toaddr="
+        - { port: "80",  proto: tcp, toport: "8080" }
+        - { port: "443", proto: tcp, toport: "8443" }
+        - { port: "69",  proto: udp, toport: "8069" }
       become: true
       when:
-        - services['firewalld.service'] is defined
-        - services['firewalld.service']['state'] == 'running'
+        - ansible_facts['services']['firewalld.service'] is defined
+        - ansible_facts['services']['firewalld.service']['state'] == 'running'
 
     - name: Bring down network quadlet
       ansible.builtin.import_tasks: ../common/tasks.down.yaml

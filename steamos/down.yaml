@@ -4,5 +4,5 @@
   tasks:
     - name: Remove wireplumber config
       ansible.builtin.file:
-        path: "{{ ansible_env.HOME }}/.config/wireplumber/wireplumber.conf.d/disable-suspension.conf"
+        path: "{{ ansible_facts['env']['HOME'] }}/.config/wireplumber/wireplumber.conf.d/disable-suspension.conf"
         state: absent

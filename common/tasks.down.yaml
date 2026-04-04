@@ -14,7 +14,7 @@
 
 - name: Remove Quadlet files
   ansible.builtin.file:
-    path: "{{ ansible_env.HOME }}/.config/containers/systemd/{{ item.path | basename }}"
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/containers/systemd/{{ item.path | basename }}"
     state: absent
   with_items: "{{ quadlet_files.files }}"
 

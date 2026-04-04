@@ -6,6 +6,6 @@
       ansible.builtin.import_tasks: ../common/tasks.up.yaml
       vars:
         fw_forward_ports:
-          - "port=80:proto=tcp:toport=8080:toaddr="
-          - "port=443:proto=tcp:toport=8443:toaddr="
-          - "port=69:proto=udp:toport=8069:toaddr="
+          - { port: "80",  proto: tcp, toport: "8080" }
+          - { port: "443", proto: tcp, toport: "8443" }
+          - { port: "69",  proto: udp, toport: "8069" }
