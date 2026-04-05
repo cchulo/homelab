@@ -1,87 +1,59 @@
 - name: Bring up netbootxyz
   hosts: servers
 
-  vars:
-    tftp_volume_path: "{{ ansible_facts['env']['HOME'] }}/.local/share/containers/storage/volumes/netbootxyz-assets/_data"
-
   tasks:
-    - name: Disable netbootxyz firewall service before recreation
-      become: true
-      ansible.posix.firewalld:
-        service: netbootxyz
-        permanent: true
-        immediate: true
-        state: disabled
-      ignore_errors: true
-
-    - name: Remove stale netbootxyz firewall service (port change)
+    # --- Deploy rootful quadlet ---
+    - name: Create rootful Quadlet directory
       become: true
       ansible.builtin.file:
-        path: /etc/firewalld/services/netbootxyz.xml
-        state: absent
-      register: fw_cleanup
-
-    - name: Reload firewall after removing stale service
-      become: true
-      ansible.builtin.command: firewall-cmd --reload
-      when: fw_cleanup is changed
-
-    - name: Bring up service
-      ansible.builtin.import_tasks: ../../common/tasks.up.yaml
-      vars:
-        fw_services:
-          to_create:
-            - name: netbootxyz
-              ports:
-                - 3001/tcp
-                - 69/udp
-                - 8082/tcp
-          to_enable:
-            - netbootxyz
-        systemd_services:
-          - netbootxyz.service
-
-    - name: Install tftp-server package
-      become: true
-      ansible.builtin.dnf:
-        name: tftp-server
-        state: present
-
-    - name: Create tftp.service override directory
-      become: true
-      ansible.builtin.file:
-        path: /etc/systemd/system/tftp.service.d
+        path: /etc/containers/systemd
         state: directory
         mode: "0755"
 
-    - name: Configure tftp to serve from netbootxyz assets volume
+    - name: Copy Quadlet files
       become: true
       ansible.builtin.copy:
-        dest: /etc/systemd/system/tftp.service.d/override.conf
-        content: |
-          [Service]
-          ExecStart=
-          ExecStart=/usr/sbin/in.tftpd -s {{ tftp_volume_path }}
+        src: "{{ playbook_dir }}/systemd/"
+        dest: /etc/containers/systemd
         mode: "0644"
-      register: tftp_override
+      register: result
 
-    - name: Set SELinux file context for TFTP volume path
+    # --- Firewall ---
+    - name: Populate service facts
+      ansible.builtin.service_facts:
+
+    - name: Configure Firewall
       become: true
-      community.general.sefcontext:
-        target: "{{ tftp_volume_path }}(/.*)?"
-        setype: tftpdir_rw_t
-        state: present
-      register: sefcontext_result
+      when:
+        - ansible_facts['services']['firewalld.service'] is defined
+        - ansible_facts['services']['firewalld.service']['state'] == 'running'
+      block:
+        - name: Add Firewall Service
+          ansible.builtin.shell: |
+            firewall-cmd --permanent --new-service=netbootxyz
+            firewall-cmd --permanent --service=netbootxyz --add-port=3001/tcp
+            firewall-cmd --permanent --service=netbootxyz --add-port=69/udp
+            firewall-cmd --permanent --service=netbootxyz --add-port=8082/tcp
+          args:
+            creates: /etc/firewalld/services/netbootxyz.xml
+          register: addservice
 
-    - name: Apply SELinux context to volume path
-      become: true
-      ansible.builtin.command: restorecon -Rv {{ tftp_volume_path }}
-      when: sefcontext_result is changed
+        - name: Reload Firewall
+          ansible.builtin.command: firewall-cmd --reload
+          when: addservice.changed
 
-    - name: Enable and start tftp.socket
+        - name: Enable Firewall Service
+          ansible.posix.firewalld:
+            service: netbootxyz
+            immediate: true
+            permanent: true
+            state: enabled
+
+    # --- Start service ---
+    - name: Start netbootxyz service
       become: true
       ansible.builtin.systemd:
-        name: tftp.socket
-        daemon_reload: "{{ tftp_override is changed }}"
-        enabled: true
-        state: "{{ 'restarted' if tftp_override is changed else 'started' }}"
+        name: netbootxyz.service
+        daemon_reload: true
+        state: restarted
+      when: result is changed

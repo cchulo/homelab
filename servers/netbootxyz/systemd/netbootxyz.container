@@ -1,20 +1,20 @@
 [Unit]
 Description=netboot.xyz container
-Requires=netbootxyz-config.volume netbootxyz-assets.volume homelab.network
-After=network-online.target netbootxyz-config.volume netbootxyz-assets.volume homelab.network
+Requires=netbootxyz-config.volume netbootxyz-assets.volume
+After=network-online.target netbootxyz-config.volume netbootxyz-assets.volume
 
 [Container]
 Environment="TZ=America/Los_Angeles"
+Environment="WEB_APP_PORT=3001"
+Environment="NGINX_PORT=8082"
 Image=netbootxyz.image
 ContainerName=netbootxyz
-PublishPort=3001:3000
-PublishPort=8082:80
+Network=host
 Volume=netbootxyz-config:/config
 Volume=netbootxyz-assets:/assets
-Network=homelab
 
 [Service]
 Restart=always
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target

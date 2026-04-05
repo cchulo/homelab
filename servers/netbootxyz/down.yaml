@@ -1,41 +1,29 @@
 - name: Bring down netbootxyz
   hosts: servers
 
-  vars:
-    tftp_volume_path: "{{ ansible_facts['env']['HOME'] }}/.local/share/containers/storage/volumes/netbootxyz-assets/_data"
-
   tasks:
-    - name: Stop and disable tftp.socket
+    - name: Stop netbootxyz service
       become: true
       ansible.builtin.systemd:
-        name: tftp.socket
-        enabled: false
+        name: netbootxyz.service
         state: stopped
       ignore_errors: true
 
-    - name: Stop tftp.service
-      become: true
-      ansible.builtin.systemd:
-        name: tftp.service
-        state: stopped
-      ignore_errors: true
+    - name: Find Quadlet files
+      ansible.builtin.find:
+        paths: "{{ playbook_dir }}/systemd"
+        file_type: file
+      delegate_to: localhost
+      register: quadlet_files
 
-    - name: Remove tftp.service override
+    - name: Remove Quadlet files
       become: true
       ansible.builtin.file:
-        path: /etc/systemd/system/tftp.service.d
+        path: "/etc/containers/systemd/{{ item.path | basename }}"
         state: absent
+      with_items: "{{ quadlet_files.files }}"
 
-    - name: Remove SELinux file context for TFTP volume path
+    - name: Reload systemd daemon
       become: true
-      community.general.sefcontext:
-        target: "{{ tftp_volume_path }}(/.*)?"
-        setype: tftpdir_rw_t
-        state: absent
-      ignore_errors: true
-
-    - name: Bring down service
-      ansible.builtin.import_tasks: ../../common/tasks.down.yaml
-      vars:
-        systemd_services:
-          - netbootxyz.service
+      ansible.builtin.systemd:
+        daemon_reload: true
