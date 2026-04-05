@@ -24,4 +24,4 @@
         - ansible_facts['services']['firewalld.service']['state'] == 'running'
 
     - name: Bring down network quadlet
-      ansible.builtin.import_tasks: ../../common/tasks.down.yaml
+      ansible.builtin.import_tasks: ../common/tasks.down.yaml
