@@ -1,5 +1,6 @@
 # Homelab
-Ansible playbooks for setting up my various servers and workstations at home.
+
+Ansible playbooks for setting up home servers and workstations.
 
 ## Prerequisites
 
@@ -13,15 +14,7 @@ ansible-galaxy collection install ansible.posix
 
 ## Inventory
 
-Edit `inventory.ini` with your actual hosts:
-
-```ini
-[servers]
-my-server ansible_host=192.168.1.x ansible_user=cchulo
-
-[steamos]
-steamdeck ansible_host=192.168.1.x ansible_user=deck
-```
+Copy `inventory.ini.example` to `inventory.ini` and fill in the information for your servers and workstations
 
 ## Usage
 
@@ -39,9 +32,9 @@ ansible-playbook -Ki inventory.ini up.yaml --limit servers
 ansible-playbook -Ki inventory.ini up.yaml --limit steamos
 
 # Single service
-ansible-playbook -Ki inventory.ini nginx/up.yaml
-ansible-playbook -Ki inventory.ini forgejo/up.yaml
-ansible-playbook -Ki inventory.ini netbootxyz/up.yaml
+ansible-playbook -Ki inventory.ini servers/nginx/up.yaml
+ansible-playbook -Ki inventory.ini servers/forgejo/up.yaml
+ansible-playbook -Ki inventory.ini servers/netbootxyz/up.yaml
 ansible-playbook -Ki inventory.ini steamos/up.yaml
 ```
 
@@ -53,12 +46,13 @@ The `-K` flag prompts for the become (sudo) password, required for firewalld ope
 ├── common/
 │   ├── tasks.up.yaml       # shared deploy logic (quadlets, firewall, systemd)
 │   └── tasks.down.yaml     # shared teardown logic
-├── network/                # homelab podman network + firewall port forwards
-├── nginx/                  # Nginx Proxy Manager
-├── forgejo/                # Forgejo git server
-├── netbootxyz/             # netboot.xyz PXE boot server
+├── servers/
+│   ├── network/            # homelab podman network + firewall port forwards
+│   ├── nginx/              # Nginx Proxy Manager
+│   ├── forgejo/            # Forgejo git server
+│   └── netbootxyz/         # netboot.xyz PXE boot server
 ├── steamos/                # SteamOS workstation config
-├── inventory.ini
+├── inventory.ini.example
 ├── up.yaml                 # deploys all services
 └── down.yaml               # tears down all services
 ```
