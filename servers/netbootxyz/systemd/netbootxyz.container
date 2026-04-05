@@ -8,7 +8,6 @@ Environment="TZ=America/Los_Angeles"
 Image=netbootxyz.image
 ContainerName=netbootxyz
 PublishPort=3001:3000
-PublishPort=8069:69/udp
 PublishPort=8082:80
 Volume=netbootxyz-config:/config
 Volume=netbootxyz-assets:/assets

@@ -1,7 +1,31 @@
 - name: Bring up netbootxyz
   hosts: servers
 
+  vars:
+    tftp_volume_path: "{{ ansible_facts['env']['HOME'] }}/.local/share/containers/storage/volumes/netbootxyz-assets/_data"
+
   tasks:
+    - name: Disable netbootxyz firewall service before recreation
+      become: true
+      ansible.posix.firewalld:
+        service: netbootxyz
+        permanent: true
+        immediate: true
+        state: disabled
+      ignore_errors: true
+
+    - name: Remove stale netbootxyz firewall service (port change)
+      become: true
+      ansible.builtin.file:
+        path: /etc/firewalld/services/netbootxyz.xml
+        state: absent
+      register: fw_cleanup
+
+    - name: Reload firewall after removing stale service
+      become: true
+      ansible.builtin.command: firewall-cmd --reload
+      when: fw_cleanup is changed
+
     - name: Bring up service
       ansible.builtin.import_tasks: ../../common/tasks.up.yaml
       vars:
@@ -10,9 +34,54 @@
             - name: netbootxyz
               ports:
                 - 3001/tcp
-                - 8069/udp
+                - 69/udp
                 - 8082/tcp
           to_enable:
             - netbootxyz
         systemd_services:
           - netbootxyz.service
+
+    - name: Install tftp-server package
+      become: true
+      ansible.builtin.dnf:
+        name: tftp-server
+        state: present
+
+    - name: Create tftp.service override directory
+      become: true
+      ansible.builtin.file:
+        path: /etc/systemd/system/tftp.service.d
+        state: directory
+        mode: "0755"
+
+    - name: Configure tftp to serve from netbootxyz assets volume
+      become: true
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/tftp.service.d/override.conf
+        content: |
+          [Service]
+          ExecStart=
+          ExecStart=/usr/sbin/in.tftpd -s {{ tftp_volume_path }}
+        mode: "0644"
+      register: tftp_override
+
+    - name: Set SELinux file context for TFTP volume path
+      become: true
+      community.general.sefcontext:
+        target: "{{ tftp_volume_path }}(/.*)?"
+        setype: tftpdir_rw_t
+        state: present
+      register: sefcontext_result
+
+    - name: Apply SELinux context to volume path
+      become: true
+      ansible.builtin.command: restorecon -Rv {{ tftp_volume_path }}
+      when: sefcontext_result is changed
+
+    - name: Enable and start tftp.socket
+      become: true
+      ansible.builtin.systemd:
+        name: tftp.socket
+        daemon_reload: "{{ tftp_override is changed }}"
+        enabled: true
+        state: "{{ 'restarted' if tftp_override is changed else 'started' }}"
