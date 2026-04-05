@@ -5,13 +5,14 @@
 This project uses per-service Ansible playbooks modeled after chadweimer/quadlets.
 
 ```
-<service>/
-├── up.yaml              # deploy playbook
-├── down.yaml            # teardown playbook
-└── systemd/             # Podman quadlet files (servers only)
-    ├── <service>.container
-    ├── <service>.image
-    └── <service>-<name>.volume
+servers/
+└── <service>/
+    ├── up.yaml              # deploy playbook
+    ├── down.yaml            # teardown playbook
+    └── systemd/             # Podman quadlet files
+        ├── <service>.container
+        ├── <service>.image
+        └── <service>-<name>.volume
 steamos/
 ├── up.yaml
 ├── down.yaml
@@ -31,11 +32,11 @@ common/
 
 Use `/new-server-service` or follow these rules:
 
-1. Create `<service>/systemd/` with quadlet files (`.container`, `.image`, `.volume` as needed)
-2. Create `<service>/up.yaml` with `hosts: servers`, import `../common/tasks.up.yaml`, and pass `fw_services` and `systemd_services` vars
-3. Create `<service>/down.yaml` with `hosts: servers`, import `../common/tasks.down.yaml`, and pass `systemd_services` vars
-4. Add `- ansible.builtin.import_playbook: <service>/up.yaml` to root `up.yaml`
-5. Add `- ansible.builtin.import_playbook: <service>/down.yaml` to root `down.yaml` (in reverse order)
+1. Create `servers/<service>/systemd/` with quadlet files (`.container`, `.image`, `.volume` as needed)
+2. Create `servers/<service>/up.yaml` with `hosts: servers`, import `../../common/tasks.up.yaml`, and pass `fw_services` and `systemd_services` vars
+3. Create `servers/<service>/down.yaml` with `hosts: servers`, import `../../common/tasks.down.yaml`, and pass `systemd_services` vars
+4. Add `- ansible.builtin.import_playbook: servers/<service>/up.yaml` to root `up.yaml`
+5. Add `- ansible.builtin.import_playbook: servers/<service>/down.yaml` to root `down.yaml` (in reverse order)
 
 ### Quadlet volume conventions
 
@@ -76,6 +77,6 @@ Use `/new-steamos-config` or follow these rules:
 - Always use `ansible_env.HOME` and `ansible_user_id` for remote paths/ownership — never `lookup('env', 'HOME')` or `lookup('env', 'USER')`, which resolve on the controller, not the remote host
 
 - Never commit `inventory.ini` — it is gitignored
-- Port forwards (80→8080, 443→8443, 69→8069) live in `network/up.yaml`
-- The `homelab.network` quadlet lives in `network/systemd/`
+- Port forwards (80→8080, 443→8443, 69→8069) live in `servers/network/up.yaml`
+- The `homelab.network` quadlet lives in `servers/network/systemd/`
 - `down.yaml` imports services in reverse order of `up.yaml`

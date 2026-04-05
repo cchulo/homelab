@@ -3,7 +3,7 @@
 
   tasks:
     - name: Bring down service
-      ansible.builtin.import_tasks: ../common/tasks.down.yaml
+      ansible.builtin.import_tasks: ../../common/tasks.down.yaml
       vars:
         systemd_services:
           - netbootxyz.service

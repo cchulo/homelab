@@ -3,7 +3,7 @@
 
   tasks:
     - name: Bring up service
-      ansible.builtin.import_tasks: ../common/tasks.up.yaml
+      ansible.builtin.import_tasks: ../../common/tasks.up.yaml
       vars:
         fw_services:
           to_create:
