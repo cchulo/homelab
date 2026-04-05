@@ -2,28 +2,8 @@
   hosts: servers
 
   tasks:
-    - name: Stop netbootxyz service
-      become: true
-      ansible.builtin.systemd:
-        name: netbootxyz.service
-        state: stopped
-      ignore_errors: true
-
-    - name: Find Quadlet files
-      ansible.builtin.find:
-        paths: "{{ playbook_dir }}/systemd"
-        file_type: file
-      delegate_to: localhost
-      register: quadlet_files
-
-    - name: Remove Quadlet files
-      become: true
-      ansible.builtin.file:
-        path: "/etc/containers/systemd/{{ item.path | basename }}"
-        state: absent
-      with_items: "{{ quadlet_files.files }}"
-
-    - name: Reload systemd daemon
-      become: true
-      ansible.builtin.systemd:
-        daemon_reload: true
+    - name: Bring down service
+      ansible.builtin.import_tasks: ../../common/tasks.down.yaml
+      vars:
+        systemd_services:
+          - netbootxyz.service

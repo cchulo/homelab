@@ -2,58 +2,17 @@
   hosts: servers
 
   tasks:
-    # --- Deploy rootful quadlet ---
-    - name: Create rootful Quadlet directory
-      become: true
-      ansible.builtin.file:
-        path: /etc/containers/systemd
-        state: directory
-        mode: "0755"
-
-    - name: Copy Quadlet files
-      become: true
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/systemd/"
-        dest: /etc/containers/systemd
-        mode: "0644"
-      register: result
-
-    # --- Firewall ---
-    - name: Populate service facts
-      ansible.builtin.service_facts:
-
-    - name: Configure Firewall
-      become: true
-      when:
-        - ansible_facts['services']['firewalld.service'] is defined
-        - ansible_facts['services']['firewalld.service']['state'] == 'running'
-      block:
-        - name: Add Firewall Service
-          ansible.builtin.shell: |
-            firewall-cmd --permanent --new-service=netbootxyz
-            firewall-cmd --permanent --service=netbootxyz --add-port=3001/tcp
-            firewall-cmd --permanent --service=netbootxyz --add-port=69/udp
-            firewall-cmd --permanent --service=netbootxyz --add-port=8082/tcp
-          args:
-            creates: /etc/firewalld/services/netbootxyz.xml
-          register: addservice
-
-        - name: Reload Firewall
-          ansible.builtin.command: firewall-cmd --reload
-          when: addservice.changed
-
-        - name: Enable Firewall Service
-          ansible.posix.firewalld:
-            service: netbootxyz
-            immediate: true
-            permanent: true
-            state: enabled
-
-    # --- Start service ---
-    - name: Start netbootxyz service
-      become: true
-      ansible.builtin.systemd:
-        name: netbootxyz.service
-        daemon_reload: true
-        state: restarted
-      when: result is changed
+- name: Bring up service
+      ansible.builtin.import_tasks: ../../common/tasks.up.yaml
+      vars:
+        fw_services:
+          to_create:
+            - name: netbootxyz
+              ports:
+                - 3001/tcp
+                - 8069/udp
+                - 8082/tcp
+          to_enable:
+            - netbootxyz
+        systemd_services:
+          - netbootxyz.service
