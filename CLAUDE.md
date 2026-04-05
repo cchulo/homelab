@@ -73,7 +73,7 @@ Use `/new-steamos-config` or follow these rules:
 
 ## General rules
 
-- Always use `ansible_env.HOME` and `ansible_user_id` for remote paths/ownership — never `lookup('env', 'HOME')` or `lookup('env', 'USER')`, which resolve on the controller, not the remote host
+- Always use `ansible_facts['env']['HOME']` and `ansible_facts['user_id']` for remote paths/ownership — never `ansible_env.HOME`, `ansible_user_id`, `lookup('env', 'HOME')`, or `lookup('env', 'USER')`, which either resolve on the controller or are deprecated
 
 - Never commit `inventory.ini` — it is gitignored
 - Port forwards (80→8080, 443→8443, 69→8069) live in `network/up.yaml`

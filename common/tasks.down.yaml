@@ -10,6 +10,7 @@
   ansible.builtin.find:
     paths: "{{ playbook_dir }}/systemd"
     file_type: file
+  delegate_to: localhost
   register: quadlet_files
 
 - name: Remove Quadlet files
