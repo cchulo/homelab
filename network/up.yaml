@@ -3,7 +3,7 @@
 
   tasks:
     - name: Bring up network
-      ansible.builtin.import_tasks: ../../common/tasks.up.yaml
+      ansible.builtin.import_tasks: ../common/tasks.up.yaml
       vars:
         fw_forward_ports:
           - { port: "80",  proto: tcp, toport: "8080" }

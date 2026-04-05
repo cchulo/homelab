@@ -1,7 +1,7 @@
-- ansible.builtin.import_playbook: servers/netbootxyz/down.yaml
-- ansible.builtin.import_playbook: servers/forgejo/down.yaml
-- ansible.builtin.import_playbook: servers/nginx/down.yaml
-- ansible.builtin.import_playbook: servers/cockpit/down.yaml
-- ansible.builtin.import_playbook: servers/backup/down.yaml
-- ansible.builtin.import_playbook: servers/network/down.yaml
+- ansible.builtin.import_playbook: netbootxyz/down.yaml
+- ansible.builtin.import_playbook: forgejo/down.yaml
+- ansible.builtin.import_playbook: nginx/down.yaml
+- ansible.builtin.import_playbook: cockpit/down.yaml
+- ansible.builtin.import_playbook: backup/down.yaml
+- ansible.builtin.import_playbook: network/down.yaml
 - ansible.builtin.import_playbook: steamos/down.yaml

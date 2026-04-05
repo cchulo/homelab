@@ -1,7 +1,7 @@
-- ansible.builtin.import_playbook: servers/network/up.yaml
-- ansible.builtin.import_playbook: servers/backup/up.yaml
-- ansible.builtin.import_playbook: servers/cockpit/up.yaml
-- ansible.builtin.import_playbook: servers/nginx/up.yaml
-- ansible.builtin.import_playbook: servers/forgejo/up.yaml
-- ansible.builtin.import_playbook: servers/netbootxyz/up.yaml
+- ansible.builtin.import_playbook: network/up.yaml
+- ansible.builtin.import_playbook: backup/up.yaml
+- ansible.builtin.import_playbook: cockpit/up.yaml
+- ansible.builtin.import_playbook: nginx/up.yaml
+- ansible.builtin.import_playbook: forgejo/up.yaml
+- ansible.builtin.import_playbook: netbootxyz/up.yaml
 - ansible.builtin.import_playbook: steamos/up.yaml
