@@ -3,11 +3,19 @@
   become: true
 
   tasks:
+    - name: Check if backup is already mounted
+      ansible.builtin.command:
+        cmd: mountpoint -q /mnt/backup
+      register: backup_mounted
+      changed_when: false
+      failed_when: false
+
     - name: Create mount point
       ansible.builtin.file:
         path: /mnt/backup
         state: directory
         mode: "0755"
+      when: backup_mounted.rc != 0
 
     - name: Deploy systemd mount unit
       ansible.builtin.template:
