@@ -2,7 +2,7 @@
   hosts: servers
 
   tasks:
-- name: Bring up service
+    - name: Bring up service
       ansible.builtin.import_tasks: ../../common/tasks.up.yaml
       vars:
         fw_services:
