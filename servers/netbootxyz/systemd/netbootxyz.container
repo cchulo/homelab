@@ -5,6 +5,7 @@ After=network-online.target netbootxyz-config.volume netbootxyz-assets.volume ho
 
 [Container]
 Environment="TZ=America/Los_Angeles"
+Environment="TFTPD_OPTS=--tftp-single-port"
 Image=netbootxyz.image
 ContainerName=netbootxyz
 PublishPort=3001:3000
