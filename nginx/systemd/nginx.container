@@ -13,6 +13,7 @@ PublishPort=8081:81
 Volume=nginx-data:/data
 Volume=nginx-letsencrypt:/etc/letsencrypt
 Network=homelab
+AddHost=host.containers.internal:host-gateway
 
 [Service]
 Restart=always
