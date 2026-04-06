@@ -1,2 +1,3 @@
 inventory.ini
 group_vars/servers.yml
+group_vars/servers.vault.yml
