@@ -42,18 +42,7 @@ The script parses the user and volume name from the filename, stops any containe
 
 ## Configuration
 
-The GPG passphrase is stored in an Ansible vault file:
-
-```bash
-# Edit the vault (prompts for vault password)
-ansible-vault edit group_vars/servers.vault.yml
-```
-
-The vault contains `backup_gpg_passphrase`. When running playbooks, pass the vault password:
-
-```bash
-ansible-playbook up.yaml --ask-vault-pass
-```
+The GPG passphrase (`backup_gpg_passphrase`) and retention count (`backup_retention`) are configured in `group_vars/servers.yml`, which is encrypted with Ansible Vault. See the root [README](../README.md#vault) for vault usage.
 
 ## Retention
 

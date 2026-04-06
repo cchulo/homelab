@@ -18,14 +18,20 @@ Copy `inventory.ini.example` to `inventory.ini` and fill in the information for 
 
 ## Vault
 
-Sensitive variables (e.g. `backup_gpg_passphrase`) are stored in `group_vars/servers.vault.yml`, encrypted with Ansible Vault.
+Server variables are stored in `group_vars/servers.yml`, encrypted with Ansible Vault.
 
 ```bash
 # Edit the vault
-ansible-vault edit group_vars/servers.vault.yml
+ansible-vault edit group_vars/servers.yml
 
 # View the vault
-ansible-vault view group_vars/servers.vault.yml
+ansible-vault view group_vars/servers.yml
+```
+
+Copy `group_vars/servers.yml.example` to `group_vars/servers.yml`, fill in your values, then encrypt:
+
+```bash
+ansible-vault encrypt group_vars/servers.yml
 ```
 
 ## Usage
@@ -66,8 +72,7 @@ The `-K` flag prompts for the become (sudo) password, required for firewalld ope
 ├── cockpit/                # Cockpit web console + libvirt
 ├── steamos/                # SteamOS workstation config
 ├── group_vars/
-│   ├── servers.yml         # server variables
-│   └── servers.vault.yml   # encrypted secrets (Ansible Vault)
+│   └── servers.yml         # server variables (encrypted with Ansible Vault)
 ├── inventory.ini.example
 ├── up.yaml                 # deploys all services
 └── down.yaml               # tears down all services
