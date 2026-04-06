@@ -2,10 +2,6 @@
 set -euo pipefail
 
 PASSPHRASE_FILE="/etc/homelab/backup-passphrase"
-LOG_TAG="homelab-restore"
-
-log() { logger -t "$LOG_TAG" "$1"; }
-
 usage() {
     echo "Usage: $0 <backup-file.tar.gz.gpg>"
     echo ""
@@ -21,12 +17,12 @@ fi
 BACKUP_FILE="$1"
 
 if [[ ! -f "$BACKUP_FILE" ]]; then
-    echo "ERROR: Backup file not found: $BACKUP_FILE"
+    echo "ERROR: Backup file not found: $BACKUP_FILE" >&2
     exit 1
 fi
 
 if [[ ! -f "$PASSPHRASE_FILE" ]]; then
-    echo "ERROR: Passphrase file not found at $PASSPHRASE_FILE"
+    echo "ERROR: Passphrase file not found at $PASSPHRASE_FILE" >&2
     exit 1
 fi
 
@@ -34,7 +30,7 @@ fi
 # Expected format: <user>_<volume>_<date>.tar.gz.gpg
 filename=$(basename "$BACKUP_FILE")
 if [[ ! "$filename" =~ ^([^_]+)_(.+)_[0-9]{4}-[0-9]{2}-[0-9]{2}\.tar\.gz\.gpg$ ]]; then
-    echo "ERROR: Filename does not match expected format: <user>_<volume>_<date>.tar.gz.gpg"
+    echo "ERROR: Filename does not match expected format: <user>_<volume>_<date>.tar.gz.gpg" >&2
     exit 1
 fi
 
@@ -45,13 +41,13 @@ echo "Restoring volume '$volume' for user '$user' from $filename"
 
 # Verify user exists
 if ! id "$user" &>/dev/null; then
-    echo "ERROR: User '$user' does not exist"
+    echo "ERROR: User '$user' does not exist" >&2
     exit 1
 fi
 
 # Verify volume exists
 if ! runuser -u "$user" -- podman volume exists "$volume" 2>/dev/null; then
-    echo "ERROR: Volume '$volume' does not exist for user '$user'"
+    echo "ERROR: Volume '$volume' does not exist for user '$user'" >&2
     exit 1
 fi
 
@@ -65,7 +61,6 @@ while IFS= read -r container; do
     if systemctl --user -M "$user@" stop "$container.service" 2>/dev/null; then
         stopped_containers+=("$container")
         echo "Stopped container: $container"
-        log "Stopped container $container (user=$user)"
     fi
 done <<< "$containers"
 
@@ -75,22 +70,17 @@ if gpg --batch --decrypt --passphrase-file "$PASSPHRASE_FILE" "$BACKUP_FILE" \
     | gunzip \
     | runuser -u "$user" -- podman volume import "$volume" -; then
     echo "Successfully restored volume '$volume' for user '$user'"
-    log "Restored volume $volume for user $user from $filename"
 else
-    echo "ERROR: Failed to restore volume '$volume'"
-    log "ERROR: Failed to restore volume $volume for user $user"
+    echo "ERROR: Failed to restore volume '$volume'" >&2
 fi
 
 # Restart stopped containers
 for container in "${stopped_containers[@]}"; do
     if systemctl --user -M "$user@" start "$container.service" 2>/dev/null; then
         echo "Restarted container: $container"
-        log "Restarted container $container (user=$user)"
     else
-        echo "WARNING: Failed to restart container $container"
-        log "WARNING: Failed to restart container $container (user=$user)"
+        echo "WARNING: Failed to restart container $container" >&2
     fi
 done
 
-log "Restore complete"
 echo "Restore complete"

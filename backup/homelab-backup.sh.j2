@@ -5,20 +5,17 @@ BACKUP_DIR="/mnt/backup/$(hostname)"
 PASSPHRASE_FILE="/etc/homelab/backup-passphrase"
 RETENTION={{ backup_retention | default(4) }}
 DATE=$(date +%Y-%m-%d)
-LOG_TAG="homelab-backup"
-
-log() { logger -t "$LOG_TAG" "$1"; }
 
 # Verify NFS mount is available
 if ! mountpoint -q /mnt/backup; then
-    log "ERROR: /mnt/backup is not mounted"
+    echo "ERROR: /mnt/backup is not mounted" >&2
     exit 1
 fi
 
 mkdir -p "$BACKUP_DIR"
 
 if [[ ! -f "$PASSPHRASE_FILE" ]]; then
-    log "ERROR: Passphrase file not found at $PASSPHRASE_FILE"
+    echo "ERROR: Passphrase file not found at $PASSPHRASE_FILE" >&2
     exit 1
 fi
 
@@ -30,7 +27,7 @@ for user_home in /home/*/; do
     [[ -z "$volumes" ]] && continue
 
     while IFS= read -r volume; do
-        log "Backing up volume $volume for user $user"
+        echo "Backing up volume $volume for user $user"
 
         # Find running containers using this volume
         containers=$(runuser -u "$user" -- podman ps --filter "volume=$volume" --format '{% raw %}{{.Names}}{% endraw %}' 2>/dev/null) || true
@@ -41,7 +38,7 @@ for user_home in /home/*/; do
             [[ -z "$container" ]] && continue
             if systemctl --user -M "$user@" stop "$container.service" 2>/dev/null; then
                 stopped_containers+=("$container")
-                log "Stopped container $container (user=$user)"
+                echo "Stopped container $container (user=$user)"
             fi
         done <<< "$containers"
 
@@ -51,17 +48,17 @@ for user_home in /home/*/; do
             | gzip \
             | gpg --batch --symmetric --cipher-algo AES256 --passphrase-file "$PASSPHRASE_FILE" -o "$outfile"; then
             chmod 0600 "$outfile"
-            log "Created backup: $outfile"
+            echo "Created backup: $outfile"
         else
-            log "ERROR: Failed to backup volume $volume (user=$user)"
+            echo "ERROR: Failed to backup volume $volume (user=$user)" >&2
         fi
 
         # Restart stopped containers
         for container in "${stopped_containers[@]}"; do
             if systemctl --user -M "$user@" start "$container.service" 2>/dev/null; then
-                log "Restarted container $container (user=$user)"
+                echo "Restarted container $container (user=$user)"
             else
-                log "WARNING: Failed to restart container $container (user=$user)"
+                echo "WARNING: Failed to restart container $container (user=$user)" >&2
             fi
         done
 
@@ -69,9 +66,9 @@ for user_home in /home/*/; do
         mapfile -t old_backups < <(ls -1t "${BACKUP_DIR}/${user}_${volume}_"*.tar.gz.gpg 2>/dev/null | tail -n +$((RETENTION + 1)))
         for old in "${old_backups[@]}"; do
             rm -f "$old"
-            log "Removed old backup: $old"
+            echo "Removed old backup: $old"
         done
     done <<< "$volumes"
 done
 
-log "Backup complete"
+echo "Backup complete"
