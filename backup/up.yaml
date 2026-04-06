@@ -41,7 +41,7 @@
       ansible.builtin.copy:
         content: "{{ backup_gpg_passphrase }}"
         dest: /etc/homelab/backup-passphrase
-        mode: "0600"
+        mode: "0400"
       no_log: true
 
     - name: Deploy backup script
