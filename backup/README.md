@@ -27,7 +27,7 @@ sudo systemctl start homelab-backup.service
 Backups are saved to `/mnt/backup/<hostname>/` with the naming format:
 
 ```
-<user>_<volume>_<YYYY-MM-DD>.tar.gz.gpg
+<user>_<volume>_<YYYY-MM-DD_HH-MM-SS>.tar.gz.gpg
 ```
 
 ## Restore
@@ -35,7 +35,7 @@ Backups are saved to `/mnt/backup/<hostname>/` with the naming format:
 Restore a volume from an encrypted backup:
 
 ```bash
-sudo homelab-restore.sh /mnt/backup/<hostname>/<user>_<volume>_<date>.tar.gz.gpg
+sudo homelab-restore.sh /mnt/backup/<hostname>/<user>_<volume>_<YYYY-MM-DD_HH-MM-SS>.tar.gz.gpg
 ```
 
 The script parses the user and volume name from the filename, stops any containers using the volume, decrypts and imports the backup, then restarts the containers.

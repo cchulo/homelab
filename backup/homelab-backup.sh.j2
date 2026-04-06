@@ -4,7 +4,7 @@ set -euo pipefail
 BACKUP_DIR="/mnt/backup/$(hostname)"
 PASSPHRASE_FILE="/etc/homelab/backup-passphrase"
 RETENTION={{ backup_retention | default(4) }}
-DATE=$(date +%Y-%m-%d)
+DATE=$(date +%Y-%m-%d_%H-%M-%S)
 
 # Verify NFS mount is available
 if ! mountpoint -q /mnt/backup; then
