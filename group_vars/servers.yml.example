@@ -5,3 +5,7 @@
 nfs_host: "nas.local"               # NAS hostname or IP
 nfs_share: "/volume1/backup"        # Export path on the NAS
 nfs_options: "defaults,_netdev,nofail"  # Optional: override mount options
+
+# Backup encryption
+backup_gpg_passphrase: "your-secure-passphrase-here"
+backup_retention: 4  # number of backups to keep per volume

@@ -16,29 +16,47 @@ ansible-galaxy collection install ansible.posix
 
 Copy `inventory.ini.example` to `inventory.ini` and fill in the information for your servers and workstations
 
+## Vault
+
+Server variables are stored in `group_vars/servers.yml`, encrypted with Ansible Vault.
+
+```bash
+# Edit the vault
+ansible-vault edit group_vars/servers.yml
+
+# View the vault
+ansible-vault view group_vars/servers.yml
+```
+
+Copy `group_vars/servers.yml.example` to `group_vars/servers.yml`, fill in your values, then encrypt:
+
+```bash
+ansible-vault encrypt group_vars/servers.yml
+```
+
 ## Usage
 
 ```bash
 # Deploy everything
-ansible-playbook -Ki inventory.ini up.yaml
+ansible-playbook -Ki inventory.ini --ask-vault-pass up.yaml
 
 # Tear down everything
-ansible-playbook -Ki inventory.ini down.yaml
+ansible-playbook -Ki inventory.ini --ask-vault-pass down.yaml
 
 # Servers only
-ansible-playbook -Ki inventory.ini up.yaml --limit servers
+ansible-playbook -Ki inventory.ini --ask-vault-pass up.yaml --limit servers
 
 # SteamOS only
 ansible-playbook -Ki inventory.ini up.yaml --limit steamos
 
 # Single service
-ansible-playbook -Ki inventory.ini servers/nginx/up.yaml
-ansible-playbook -Ki inventory.ini servers/forgejo/up.yaml
-ansible-playbook -Ki inventory.ini servers/netbootxyz/up.yaml
+ansible-playbook -Ki inventory.ini --ask-vault-pass nginx/up.yaml
+ansible-playbook -Ki inventory.ini --ask-vault-pass forgejo/up.yaml
+ansible-playbook -Ki inventory.ini --ask-vault-pass netbootxyz/up.yaml
 ansible-playbook -Ki inventory.ini steamos/up.yaml
 ```
 
-The `-K` flag prompts for the become (sudo) password, required for firewalld operations on servers.
+The `-K` flag prompts for the become (sudo) password, required for firewalld operations on servers. The `--ask-vault-pass` flag prompts for the Ansible Vault password to decrypt secrets.
 
 ## Structure
 
@@ -46,12 +64,15 @@ The `-K` flag prompts for the become (sudo) password, required for firewalld ope
 ├── common/
 │   ├── tasks.up.yaml       # shared deploy logic (quadlets, firewall, systemd)
 │   └── tasks.down.yaml     # shared teardown logic
-├── servers/
-│   ├── network/            # homelab podman network + firewall port forwards
-│   ├── nginx/              # Nginx Proxy Manager
-│   ├── forgejo/            # Forgejo git server
-│   └── netbootxyz/         # netboot.xyz PXE boot server
+├── backup/                 # NFS mount + encrypted volume backup service
+├── network/                # homelab podman network + firewall port forwards
+├── nginx/                  # Nginx Proxy Manager
+├── forgejo/                # Forgejo git server
+├── netbootxyz/             # netboot.xyz PXE boot server
+├── cockpit/                # Cockpit web console + libvirt
 ├── steamos/                # SteamOS workstation config
+├── group_vars/
+│   └── servers.yml         # server variables (encrypted with Ansible Vault)
 ├── inventory.ini.example
 ├── up.yaml                 # deploys all services
 └── down.yaml               # tears down all services
