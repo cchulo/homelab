@@ -40,6 +40,21 @@ sudo homelab-restore.sh /mnt/backup/<hostname>/<user>_<volume>_<YYYY-MM-DD_HH-MM
 
 The script parses the user and volume name from the filename, stops any containers using the volume, decrypts and imports the backup, then restarts the containers.
 
+## Configuration
+
+The GPG passphrase is stored in an Ansible vault file:
+
+```bash
+# Edit the vault (prompts for vault password)
+ansible-vault edit group_vars/servers.vault.yml
+```
+
+The vault contains `backup_gpg_passphrase`. When running playbooks, pass the vault password:
+
+```bash
+ansible-playbook up.yaml --ask-vault-pass
+```
+
 ## Retention
 
 By default, the 4 most recent backups are kept per volume. Older backups are automatically deleted after each run. This is configurable via `backup_retention` in `group_vars/servers.yml`.
