@@ -3,6 +3,44 @@
   become: true
 
   tasks:
+    - name: Stop and disable backup timer
+      ansible.builtin.systemd:
+        name: homelab-backup.timer
+        enabled: false
+        state: stopped
+      ignore_errors: true
+
+    - name: Remove backup timer unit
+      ansible.builtin.file:
+        path: /etc/systemd/system/homelab-backup.timer
+        state: absent
+
+    - name: Remove backup service unit
+      ansible.builtin.file:
+        path: /etc/systemd/system/homelab-backup.service
+        state: absent
+      notify: Reload systemd
+
+    - name: Remove backup script
+      ansible.builtin.file:
+        path: /usr/local/bin/homelab-backup.sh
+        state: absent
+
+    - name: Remove restore script
+      ansible.builtin.file:
+        path: /usr/local/bin/homelab-restore.sh
+        state: absent
+
+    - name: Remove backup passphrase
+      ansible.builtin.file:
+        path: /etc/homelab/backup-passphrase
+        state: absent
+
+    - name: Remove homelab config directory
+      ansible.builtin.file:
+        path: /etc/homelab
+        state: absent
+
     - name: Stop and disable NFS mount
       ansible.builtin.systemd:
         name: mnt-backup.mount

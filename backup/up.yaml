@@ -31,6 +31,52 @@
         state: started
         daemon_reload: true
 
+    - name: Create homelab config directory
+      ansible.builtin.file:
+        path: /etc/homelab
+        state: directory
+        mode: "0700"
+
+    - name: Deploy backup passphrase
+      ansible.builtin.copy:
+        content: "{{ backup_gpg_passphrase }}"
+        dest: /etc/homelab/backup-passphrase
+        mode: "0600"
+      no_log: true
+
+    - name: Deploy backup script
+      ansible.builtin.template:
+        src: homelab-backup.sh.j2
+        dest: /usr/local/bin/homelab-backup.sh
+        mode: "0700"
+
+    - name: Deploy restore script
+      ansible.builtin.template:
+        src: homelab-restore.sh.j2
+        dest: /usr/local/bin/homelab-restore.sh
+        mode: "0700"
+
+    - name: Deploy backup service unit
+      ansible.builtin.copy:
+        src: systemd/homelab-backup.service
+        dest: /etc/systemd/system/homelab-backup.service
+        mode: "0644"
+      notify: Reload systemd and remount
+
+    - name: Deploy backup timer unit
+      ansible.builtin.copy:
+        src: systemd/homelab-backup.timer
+        dest: /etc/systemd/system/homelab-backup.timer
+        mode: "0644"
+      notify: Reload systemd and remount
+
+    - name: Enable and start backup timer
+      ansible.builtin.systemd:
+        name: homelab-backup.timer
+        enabled: true
+        state: started
+        daemon_reload: true
+
   handlers:
     - name: Reload systemd and remount
       ansible.builtin.systemd:
