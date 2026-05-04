@@ -1,0 +1,6 @@
+[Volume]
+VolumeName=gluetun-data
+Label=homelab=gluetun
+
+[Install]
+WantedBy=multi-user.target

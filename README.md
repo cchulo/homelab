@@ -53,6 +53,7 @@ ansible-playbook -Ki inventory.ini up.yaml --limit steamos
 ansible-playbook -Ki inventory.ini --ask-vault-pass nginx/up.yaml
 ansible-playbook -Ki inventory.ini --ask-vault-pass forgejo/up.yaml
 ansible-playbook -Ki inventory.ini --ask-vault-pass netbootxyz/up.yaml
+ansible-playbook -Ki inventory.ini --ask-vault-pass gluetun/up.yaml
 ansible-playbook -Ki inventory.ini steamos/up.yaml
 ```
 
@@ -69,6 +70,7 @@ The `-K` flag prompts for the become (sudo) password, required for firewalld ope
 ├── nginx/                  # Nginx Proxy Manager
 ├── forgejo/                # Forgejo git server
 ├── netbootxyz/             # netboot.xyz PXE boot server
+├── gluetun/                # Gluetun VPN container (rootful)
 ├── cockpit/                # Cockpit web console + libvirt
 ├── steamos/                # SteamOS workstation config
 ├── group_vars/
@@ -106,3 +108,9 @@ SSH: `server:3022`
 Web UI: `http://server:3001`
 TFTP: `server:8069` (UDP)
 Assets: `http://server:8082`
+
+### Gluetun (rootful)
+VPN container running as root via system-level Podman quadlets in `/etc/containers/systemd/`.
+Unlike the other services it does not attach to the rootless `homelab` network.
+Configure via `gluetun_env` in the vault — every key/value pair lands in `/etc/gluetun/gluetun.env`.
+Control server: `http://server:8000`

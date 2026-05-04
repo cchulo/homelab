@@ -1,0 +1,3 @@
+[Image]
+Image=docker.io/qmcgaw/gluetun:v3.40.0
+Policy=always

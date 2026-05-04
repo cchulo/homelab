@@ -4,4 +4,5 @@
 - ansible.builtin.import_playbook: nginx/up.yaml
 - ansible.builtin.import_playbook: forgejo/up.yaml
 - ansible.builtin.import_playbook: netbootxyz/up.yaml
+- ansible.builtin.import_playbook: gluetun/up.yaml
 - ansible.builtin.import_playbook: steamos/up.yaml

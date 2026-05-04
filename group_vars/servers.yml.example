@@ -9,3 +9,14 @@ nfs_options: "defaults,_netdev,nofail"  # Optional: override mount options
 # Backup encryption
 backup_gpg_passphrase: "your-secure-passphrase-here"
 backup_retention: 4  # number of backups to keep per volume
+
+# Gluetun (rootful) — VPN container env vars
+# Every key/value pair below is written verbatim to /etc/gluetun/gluetun.env
+# See https://github.com/qdm12/gluetun-wiki for provider-specific keys.
+gluetun_env:
+  VPN_SERVICE_PROVIDER: "mullvad"
+  VPN_TYPE: "wireguard"
+  WIREGUARD_PRIVATE_KEY: "your-wireguard-private-key"
+  WIREGUARD_ADDRESSES: "10.0.0.0/32"
+  SERVER_COUNTRIES: "USA"
+  HTTP_CONTROL_SERVER_ADDRESS: ":8000"
