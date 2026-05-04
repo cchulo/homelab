@@ -1,3 +1,4 @@
+- ansible.builtin.import_playbook: gluetun/down.yaml
 - ansible.builtin.import_playbook: netbootxyz/down.yaml
 - ansible.builtin.import_playbook: forgejo/down.yaml
 - ansible.builtin.import_playbook: nginx/down.yaml

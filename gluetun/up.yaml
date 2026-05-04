@@ -1,0 +1,73 @@
+- name: Bring up gluetun (rootful)
+  hosts: servers
+  become: true
+
+  tasks:
+    - name: Create rootful Quadlet directory
+      ansible.builtin.file:
+        path: /etc/containers/systemd
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Create gluetun config directory
+      ansible.builtin.file:
+        path: /etc/gluetun
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Deploy gluetun environment file
+      ansible.builtin.template:
+        src: gluetun.env.j2
+        dest: /etc/gluetun/gluetun.env
+        owner: root
+        group: root
+        mode: "0400"
+      no_log: true
+      register: env_result
+
+    - name: Copy the Quadlet files
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/systemd/"
+        dest: /etc/containers/systemd/
+        owner: root
+        group: root
+        mode: "0644"
+      register: quadlet_result
+
+    - name: Populate service facts
+      ansible.builtin.service_facts:
+
+    - name: Configure firewall for gluetun
+      when:
+        - ansible_facts['services']['firewalld.service'] is defined
+        - ansible_facts['services']['firewalld.service']['state'] == 'running'
+      block:
+        - name: Add gluetun firewall service
+          ansible.builtin.shell: |
+            firewall-cmd --permanent --new-service=gluetun
+            firewall-cmd --permanent --service=gluetun --add-port=8000/tcp
+          args:
+            creates: /etc/firewalld/services/gluetun.xml
+          register: addservices
+
+        - name: Reload firewall
+          ansible.builtin.command: firewall-cmd --reload
+          when: addservices.changed
+
+        - name: Enable gluetun firewall service
+          ansible.posix.firewalld:
+            service: gluetun
+            immediate: true
+            permanent: true
+            state: enabled
+
+    - name: Reload systemd and (re)start gluetun
+      ansible.builtin.systemd:
+        name: gluetun.service
+        daemon_reload: true
+        state: restarted
+      when: quadlet_result is changed or env_result is changed

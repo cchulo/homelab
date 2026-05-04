@@ -1,0 +1,21 @@
+[Unit]
+Description=Gluetun VPN container (rootful)
+Requires=gluetun-data.volume
+After=network-online.target gluetun-data.volume
+
+[Container]
+ContainerName=gluetun
+Image=gluetun.image
+Environment="TZ=America/Los_Angeles"
+EnvironmentFile=/etc/gluetun/gluetun.env
+AddCapability=NET_ADMIN
+AddDevice=/dev/net/tun:/dev/net/tun
+Volume=gluetun-data:/gluetun
+Volume=/etc/localtime:/etc/localtime:ro
+PublishPort=8000:8000
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

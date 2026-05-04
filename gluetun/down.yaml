@@ -1,0 +1,65 @@
+- name: Bring down gluetun (rootful)
+  hosts: servers
+  become: true
+
+  tasks:
+    - name: Stop gluetun service
+      ansible.builtin.systemd:
+        name: gluetun.service
+        scope: system
+        state: stopped
+      ignore_errors: true
+
+    - name: Find rootful Quadlet files
+      ansible.builtin.find:
+        paths: "{{ playbook_dir }}/systemd"
+        file_type: file
+      delegate_to: localhost
+      become: false
+      register: quadlet_files
+
+    - name: Remove rootful Quadlet files
+      ansible.builtin.file:
+        path: "/etc/containers/systemd/{{ item.path | basename }}"
+        state: absent
+      with_items: "{{ quadlet_files.files }}"
+
+    - name: Remove gluetun environment file
+      ansible.builtin.file:
+        path: /etc/gluetun/gluetun.env
+        state: absent
+
+    - name: Remove gluetun config directory
+      ansible.builtin.file:
+        path: /etc/gluetun
+        state: absent
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Populate service facts
+      ansible.builtin.service_facts:
+
+    - name: Remove gluetun firewall service
+      when:
+        - ansible_facts['services']['firewalld.service'] is defined
+        - ansible_facts['services']['firewalld.service']['state'] == 'running'
+      block:
+        - name: Disable gluetun firewall service
+          ansible.posix.firewalld:
+            service: gluetun
+            immediate: true
+            permanent: true
+            state: disabled
+          ignore_errors: true
+
+        - name: Remove gluetun firewalld service definition
+          ansible.builtin.file:
+            path: /etc/firewalld/services/gluetun.xml
+            state: absent
+          register: rm_fw_service
+
+        - name: Reload firewall
+          ansible.builtin.command: firewall-cmd --reload
+          when: rm_fw_service.changed
