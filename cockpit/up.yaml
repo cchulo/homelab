@@ -12,6 +12,7 @@
           - virt-install
           - cockpit
           - cockpit-machines
+          - cockpit-podman
         state: present
 
     - name: Enable and start libvirtd

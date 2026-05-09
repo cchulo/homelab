@@ -31,4 +31,5 @@
           - virt-install
           - cockpit
           - cockpit-machines
+          - cockpit-podman
         state: absent
