@@ -1,0 +1,3 @@
+[Image]
+Image=codeberg.org/forgejo/forgejo:14.0.1
+Policy=always

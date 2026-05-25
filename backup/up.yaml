@@ -1,0 +1,85 @@
+- name: Bring up NFS backup mount
+  hosts: servers
+  become: true
+
+  tasks:
+    - name: Check if backup is already mounted
+      ansible.builtin.command:
+        cmd: mountpoint -q /mnt/backup
+      register: backup_mounted
+      changed_when: false
+      failed_when: false
+
+    - name: Create mount point
+      ansible.builtin.file:
+        path: /mnt/backup
+        state: directory
+        mode: "0755"
+      when: backup_mounted.rc != 0
+
+    - name: Deploy systemd mount unit
+      ansible.builtin.template:
+        src: mnt-backup.mount.j2
+        dest: /etc/systemd/system/mnt-backup.mount
+        mode: "0644"
+      notify: Reload systemd and remount
+
+    - name: Enable and start NFS mount
+      ansible.builtin.systemd:
+        name: mnt-backup.mount
+        enabled: true
+        state: started
+        daemon_reload: true
+
+    - name: Create homelab config directory
+      ansible.builtin.file:
+        path: /etc/homelab
+        state: directory
+        mode: "0700"
+
+    - name: Deploy backup passphrase
+      ansible.builtin.copy:
+        content: "{{ backup_gpg_passphrase }}"
+        dest: /etc/homelab/backup-passphrase
+        mode: "0400"
+      no_log: true
+
+    - name: Deploy backup script
+      ansible.builtin.template:
+        src: homelab-backup.sh.j2
+        dest: /usr/local/bin/homelab-backup.sh
+        mode: "0700"
+
+    - name: Deploy restore script
+      ansible.builtin.template:
+        src: homelab-restore.sh.j2
+        dest: /usr/local/bin/homelab-restore.sh
+        mode: "0700"
+
+    - name: Deploy backup service unit
+      ansible.builtin.copy:
+        src: systemd/homelab-backup.service
+        dest: /etc/systemd/system/homelab-backup.service
+        mode: "0644"
+      notify: Reload systemd and remount
+
+    - name: Deploy backup timer unit
+      ansible.builtin.copy:
+        src: systemd/homelab-backup.timer
+        dest: /etc/systemd/system/homelab-backup.timer
+        mode: "0644"
+      notify: Reload systemd and remount
+
+    - name: Enable and start backup timer
+      ansible.builtin.systemd:
+        name: homelab-backup.timer
+        enabled: true
+        state: started
+        daemon_reload: true
+
+  handlers:
+    - name: Reload systemd and remount
+      ansible.builtin.systemd:
+        name: mnt-backup.mount
+        state: restarted
+        daemon_reload: true

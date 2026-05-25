@@ -1,0 +1,17 @@
+- name: Bring up forgejo
+  hosts: servers
+
+  tasks:
+    - name: Bring up service
+      ansible.builtin.import_tasks: ../common/tasks.up.yaml
+      vars:
+        fw_services:
+          to_create:
+            - name: forgejo
+              ports:
+                - 3000/tcp
+                - 3022/tcp
+          to_enable:
+            - forgejo
+        systemd_services:
+          - forgejo.service

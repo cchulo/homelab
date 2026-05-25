@@ -1,0 +1,75 @@
+- name: Create the Quadlet directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts['env']['HOME'] }}/.config/containers/systemd"
+    state: directory
+    mode: "0755"
+
+- name: Copy the Quadlet files
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/systemd/"
+    dest: "{{ ansible_facts['env']['HOME'] }}/.config/containers/systemd"
+    owner: "{{ ansible_facts['user_id'] }}"
+    group: "{{ ansible_facts['user_id'] }}"
+    mode: "0644"
+  register: result
+
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Configure Firewall
+  become: true
+  when:
+    - ansible_facts['services']['firewalld.service'] is defined
+    - ansible_facts['services']['firewalld.service']['state'] == 'running'
+  block:
+    - name: Add Firewall Services
+      ansible.builtin.shell: |
+        firewall-cmd --permanent --new-service={{ item.name }}
+        {% for port in item.ports | default([item.port]) %}
+        firewall-cmd --permanent --service={{ item.name }} --add-port={{ port }}
+        {% endfor %}
+      args:
+        creates: "/etc/firewalld/services/{{ item.name }}.xml"
+      with_items: "{{ fw_services.to_create | default([]) }}"
+      register: addservices
+
+    - name: Reload Firewall
+      ansible.builtin.command: firewall-cmd --reload
+      when: addservices.changed
+
+    - name: Enable Firewall Services
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        immediate: true
+        permanent: true
+        state: enabled
+      with_items: "{{ fw_services.to_enable | default([]) }}"
+
+    - name: Enable masquerade for port forwarding
+      ansible.posix.firewalld:
+        masquerade: true
+        permanent: true
+        immediate: true
+        state: enabled
+      when: fw_forward_ports is defined
+
+    - name: Configure port forwards
+      ansible.posix.firewalld:
+        port_forward:
+          - port: "{{ item.port }}"
+            proto: "{{ item.proto }}"
+            toport: "{{ item.toport }}"
+            toaddr: "{{ item.toaddr | default('') }}"
+        permanent: true
+        immediate: true
+        state: enabled
+      loop: "{{ fw_forward_ports | default([]) }}"
+
+- name: Start the systemd services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    daemon_reload: true
+    scope: user
+    state: restarted
+  with_items: "{{ systemd_services | default([]) }}"
+  when: result is changed

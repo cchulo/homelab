@@ -1,0 +1,6 @@
+[Unit]
+Description=Homelab network for podman containers
+
+[Network]
+NetworkName=homelab
+Driver=bridge

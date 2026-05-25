@@ -1,0 +1,6 @@
+[Volume]
+VolumeName=netbootxyz-assets
+Label=homelab=netbootxyz
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,20 @@
+[Unit]
+Description=Forgejo git server container
+Requires=forgejo-data.volume homelab.network
+After=network-online.target forgejo-data.volume homelab.network
+
+[Container]
+Environment="TZ=America/Los_Angeles"
+Image=forgejo.image
+ContainerName=forgejo
+PublishPort=3000:3000
+PublishPort=3022:22
+Volume=forgejo-data:/data
+Volume=/etc/localtime:/etc/localtime:ro
+Network=homelab
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
