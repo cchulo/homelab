@@ -1,3 +1,3 @@
 [Image]
 Image=ghcr.io/netbootxyz/netbootxyz:latest
-Policy=always
+Policy=newer
